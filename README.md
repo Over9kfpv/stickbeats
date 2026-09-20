@@ -23,6 +23,8 @@ Unzip it and copy its `SOUNDS` folder onto the root of the radio's SD card. Only
 
 ## Record your own sounds
 
+The home page has a dedicated **Record your own** section (`#record`) that explains the flow and links to the Mix page.
+
 The **Mix** page can record a personal replacement for each of the 70 sound events. Click
 **Record**, allow microphone access, and stop when finished. Smart trim suggests the sound's
 start and end while preserving pauses. Adjust the waveform selection, preview it, then choose

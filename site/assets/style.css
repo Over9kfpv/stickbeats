@@ -299,3 +299,13 @@ html { scroll-padding-top: 24px; }
 .voice-player button:disabled { opacity: .45; cursor: not-allowed; }
 .bundle summary { cursor: pointer; font-weight: 600; }
 .bundle[open] summary { margin-bottom: 16px; }
+
+/* Record-your-own homepage section. */
+.record-section { border-top: 2px solid var(--line); margin-top: 48px; }
+.record-section h2 { font-size: clamp(30px, 4vw, 52px); letter-spacing: -.03em; }
+.record-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: step; min-width: 0; }
+.record-steps li { counter-increment: step; display: grid; gap: 4px; padding: 16px 18px 16px 62px; position: relative; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.record-steps li::before { content: counter(step); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: var(--accent); color: var(--ground); }
+.record-steps span { color: var(--muted); }
+
+.install-status { font: 13px var(--mono); color: var(--muted); min-height: 1.4em; margin: 8px 0 0; }

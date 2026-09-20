@@ -158,41 +158,46 @@
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 10000);
   }
-  $('download').onclick = async () => {
-    $('download').disabled = true;
+  /** Build the mix as a JSZip (SOUNDS/<lang>/... + README); shared by download and install. */
+  async function buildMix() {
     // Freeze the export even if selections change while downloads are in progress.
     const selected = { ...pick }, personal = new Map(clips), v = V.byId[vbase.value], link = shareURL();
     const lang = v ? v.lang : 'en';
-    try {
-      let zip = new JSZip();
-      if (v) {
-        zip = await SB.voiceZip(v, text => { status.textContent = text; });
-        const readme = zip.file('README.txt');
-        if (readme) zip.file('VOICE-README.txt', await readme.async('string'));
-      }
-      status.textContent = `Collecting ${files.length} sounds…`;
-      // Bounded downloads keep memory/network pressure low on phones.
-      let next = 0;
-      await Promise.all(Array.from({ length: 4 }, async () => {
-        while (next < files.length) {
-          const f = files[next++];
-          let bytes;
-          if (personal.has(f)) bytes = await personal.get(f).wav.arrayBuffer();
-          else {
-            const response = await fetch(`wav/${D.byId[selected[f]].clips[f]}.wav`);
-            if (!response.ok) throw new Error(`${f}.wav: HTTP ${response.status}`);
-            bytes = await response.arrayBuffer();
-          }
-          zip.file(`SOUNDS/${lang}/${f}.wav`, bytes);
+    let zip = new JSZip();
+    if (v) {
+      zip = await SB.voiceZip(v, text => { status.textContent = text; });
+      const readme = zip.file('README.txt');
+      if (readme) zip.file('VOICE-README.txt', await readme.async('string'));
+    }
+    status.textContent = `Collecting ${files.length} sounds…`;
+    // Bounded downloads keep memory/network pressure low on phones.
+    let next = 0;
+    await Promise.all(Array.from({ length: 4 }, async () => {
+      while (next < files.length) {
+        const f = files[next++];
+        let bytes;
+        if (personal.has(f)) bytes = await personal.get(f).wav.arrayBuffer();
+        else {
+          const response = await fetch(`wav/${D.byId[selected[f]].clips[f]}.wav`);
+          if (!response.ok) throw new Error(`${f}.wav: HTTP ${response.status}`);
+          bytes = await response.arrayBuffer();
         }
-      }));
-      zip.file('README.txt', `Stickbeats custom mix\n\n${files.map(f => `${f}.wav <- ${personal.has(f) ? 'Personal recording' : D.byId[selected[f]].name}`).join('\n')}\n\nCopy the SOUNDS folder onto the root of your EdgeTX SD card.${v ? ` Set the radio voice language to ${v.language}.` : ''}\nPersonal recordings: no license is assigned by Stickbeats.\nCatalogue theme sounds: CC0 1.0. Any bundled voice retains its original license.\nTheme selections only (personal recordings are not in the link): ${link}\nhttps://over9kfpv.github.io/stickbeats/\n`);
+        zip.file(`SOUNDS/${lang}/${f}.wav`, bytes);
+      }
+    }));
+    zip.file('README.txt', `Stickbeats custom mix\n\n${files.map(f => `${f}.wav <- ${personal.has(f) ? 'Personal recording' : D.byId[selected[f]].name}`).join('\n')}\n\nCopy the SOUNDS folder onto the root of your EdgeTX SD card.${v ? ` Set the radio voice language to ${v.language}.` : ''}\nPersonal recordings: no license is assigned by Stickbeats.\nCatalogue theme sounds: CC0 1.0. Any bundled voice retains its original license.\nTheme selections only (personal recordings are not in the link): ${link}\nhttps://over9kfpv.github.io/stickbeats/\n`);
+    return { zip, name: v ? `stickbeats-mix-${v.id}.zip` : 'stickbeats-mix.zip' };
+  }
+  $('download').onclick = async () => {
+    $('download').disabled = true;
+    try {
+      const { zip, name } = await buildMix();
       const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-      const name = v ? `stickbeats-mix-${v.id}.zip` : 'stickbeats-mix.zip';
       download(blob, name); status.textContent = `Downloaded ${name} (${SB.size(blob.size)}).`;
     } catch (error) { status.textContent = `Download failed: ${error.message}. Your recordings are still here; check your connection and retry.`; }
     finally { $('download').disabled = false; }
   };
+  SB.wireInstall($('install'), async () => (await buildMix()).zip, status);
 
   // Recording/editor state is separate from saved clips until Use recording is pressed.
   const editor = $('editor'), editorStatus = $('editor-status');

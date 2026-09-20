@@ -22,7 +22,7 @@
 <div class="wrap">
   <header class="top">
     <a class="logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="7" width="28" height="22" rx="7" fill="currentColor"/><circle cx="10" cy="18" r="4.2" fill="var(--ground)"/><circle cx="22" cy="18" r="4.2" fill="var(--ground)"/><circle cx="10" cy="18" r="1.6" fill="var(--accent)"/><circle cx="22" cy="18" r="1.6" fill="currentColor"/><rect x="24" y="1" width="2.4" height="8" rx="1.2" fill="currentColor"/></svg>Stickbeats</a>
-    <nav class="nav" aria-label="Main"><a href="index.html#themes">Fun sound themes</a><a href="voices.html">Languages &amp; voices</a><a href="compare.html">Compare themes</a><a href="mix.html">Mix sounds</a><a href="install.html">Install</a><a href="request.html">Request</a><a href="https://github.com/Over9kfpv/stickbeats">GitHub</a></nav>
+    <nav class="nav" aria-label="Main"><a href="index.html#themes">Fun sound themes</a><a href="voices.html">Languages &amp; voices</a><a href="compare.html">Compare themes</a><a href="index.html#record">Record your own</a><a href="mix.html">Mix sounds</a><a href="install.html">Install</a><a href="request.html">Request</a><a href="https://github.com/Over9kfpv/stickbeats">GitHub</a></nav>
   </header>
 
   <section class="v-hero">
@@ -56,6 +56,7 @@
 <script src="assets/vendor/jszip.min.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/voicepack.js"></script>
+<script src="assets/install.js"></script>
 <script>
 SB.markNav();
 SB.nowbar();
@@ -71,9 +72,11 @@ Promise.all([SB.voices(), SB.data().catch(() => ({ themes: [] }))]).then(([V, D]
     `<span class="badge">${SB.esc(v.code)}</span>`, `<span class="badge">SOUNDS/${v.lang}</span>`,
     v.hosted && v.checked ? `<span class="badge ok" title="Each clip was transcribed back with speech-to-text and compared with its text">${Math.round(100 * v.verified / v.checked)}% verified by transcription</span>` : ""].join("");
   document.getElementById("actions").innerHTML = v.pack
-    ? `<button class="btn accent" id="dl-voice" type="button">Download voice pack <small>${SB.size(v.packSize)}</small></button><a class="btn ghost ext" href="${v.source}">Sources &amp; license</a>`
+    ? `<button class="btn accent" id="dl-voice" type="button">Download voice pack <small>${SB.size(v.packSize)}</small></button><button class="btn" id="install-voice" type="button" title="Radio in USB Storage mode; Chrome, Edge or Brave on desktop">Install to radio</button><a class="btn ghost ext" href="${v.source}">Sources &amp; license</a>`
     : `<a class="btn accent ext" href="${v.zip}">Download from EdgeTX <small>${v.zipSize ? SB.size(v.zipSize) : ""}</small></a><a class="btn ghost ext" href="${V.release.url}">Release notes</a>`;
   const dlv = document.getElementById("dl-voice");
+  const ins = document.getElementById("install-voice");
+  if (ins) { const st = document.createElement("p"); st.className = "install-status"; st.setAttribute("aria-live", "polite"); ins.parentNode.after(st); SB.wireInstall(ins, (say) => SB.voiceZip(v, say), st); }
   if (dlv) dlv.onclick = async () => {
     const label = dlv.innerHTML; dlv.disabled = true;
     try { await SB.downloadVoice(v, (m) => { dlv.textContent = m; }); }

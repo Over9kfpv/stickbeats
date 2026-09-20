@@ -41,7 +41,7 @@
 <div class="wrap">
   <header class="top">
     <a class="logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="7" width="28" height="22" rx="7" fill="currentColor"/><circle cx="10" cy="18" r="4.2" fill="var(--ground)"/><circle cx="22" cy="18" r="4.2" fill="var(--ground)"/><circle cx="10" cy="18" r="1.6" fill="var(--accent)"/><circle cx="22" cy="18" r="1.6" fill="currentColor"/><rect x="24" y="1" width="2.4" height="8" rx="1.2" fill="currentColor"/></svg>Stickbeats</a>
-    <nav class="nav" aria-label="Main"><a href="index.html#themes">Fun sound themes</a><a href="voices.html">Languages &amp; voices</a><a href="compare.html">Compare themes</a><a href="mix.html">Mix sounds</a><a href="install.html">Install</a><a href="request.html">Request</a><a href="https://github.com/Over9kfpv/stickbeats">GitHub</a></nav>
+    <nav class="nav" aria-label="Main"><a href="index.html#themes">Fun sound themes</a><a href="voices.html">Languages &amp; voices</a><a href="compare.html">Compare themes</a><a href="index.html#record">Record your own</a><a href="mix.html">Mix sounds</a><a href="install.html">Install</a><a href="request.html">Request</a><a href="https://github.com/Over9kfpv/stickbeats">GitHub</a></nav>
   </header>
 
   <section class="t-hero">
@@ -52,6 +52,7 @@
     <div class="t-meta" id="meta"></div>
     <div class="t-actions">
       <a class="btn" id="dl" href="#" download>Download EdgeTX pack</a>
+      <button class="btn" id="install" type="button" title="Radio in USB Storage mode; Chrome, Edge or Brave on desktop">Install to radio</button>
       <a class="btn ghost" id="dl-midi" href="#" download>MIDI sources</a>
       <button class="btn ghost" id="play-all" type="button">▶ Play every sound</button>
     </div>
@@ -63,7 +64,9 @@
   <footer class="site"><p>Copy the pack's <code>SOUNDS</code> folder to your SD card root. <a href="install.html">Install guide</a>. Free downloads · Open source. Stickbeats original themes and voices: CC0. Code: MIT. Third-party voice packs retain their original licenses.</p></footer>
 </div>
 
+<script src="assets/vendor/jszip.min.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/install.js"></script>
 <script>
 SB.markNav();
 SB.nowbar();
@@ -83,6 +86,13 @@ SB.data().then((D) => {
   const dl = document.getElementById("dl");
   dl.href = `dl/${t.id}.zip`;
   dl.innerHTML = `Download EdgeTX pack <small>${SB.size(t.zip)}</small>`;
+  const inst = document.createElement("p"); inst.id = "install-status"; inst.className = "install-status"; inst.setAttribute("aria-live", "polite");
+  document.querySelector(".t-actions").after(inst);
+  SB.wireInstall(document.getElementById("install"), async (say) => {
+    say("Downloading pack…");
+    const r = await fetch(`dl/${t.id}.zip`); if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return JSZip.loadAsync(await r.arrayBuffer());
+  }, inst);
   const dm = document.getElementById("dl-midi");
   dm.href = `dl/${t.id}-midi.zip`;
   dm.innerHTML = `MIDI sources <small>${SB.size(t.midizip)}</small>`;
