@@ -309,3 +309,26 @@ html { scroll-padding-top: 24px; }
 .record-steps span { color: var(--muted); }
 
 .install-status { font: 13px var(--mono); color: var(--muted); min-height: 1.4em; margin: 8px 0 0; }
+
+/* Install-to-radio progress bar */
+.install-bar { position: relative; height: 46px; margin: 14px 0 6px; border-radius: 12px; overflow: hidden; background: var(--panel-2, #17191b); border: 2px solid var(--line); font: 700 14px var(--mono, monospace); color: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+.install-bar[hidden] { display: none; }
+.install-bar .fill { position: absolute; inset: 0 auto 0 0; width: 0; transition: width .25s ease; background: linear-gradient(90deg, #ff2e63, #ff9f1c, #ffe14d); background-size: 200% 100%; }
+.install-bar .fill::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, rgba(255,255,255,.28) 0 12px, transparent 12px 24px); background-size: 34px 34px; animation: install-stripes .7s linear infinite; }
+.install-bar .label, .install-bar .pct { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; padding: 0 16px; text-shadow: 0 1px 3px rgba(0,0,0,.65); letter-spacing: .02em; }
+.install-bar .label { left: 0; right: 70px; }
+.install-bar .pct { right: 0; font-size: 18px; }
+.install-bar[data-state="busy"] .fill { animation: install-shimmer 1.2s ease-in-out infinite; }
+.install-bar[data-state="warn"] { border-color: #ffb400; animation: install-pulse 1s ease-in-out infinite; }
+.install-bar[data-state="warn"] .fill { background: repeating-linear-gradient(45deg, #ffb400 0 16px, #1b1300 16px 32px); }
+.install-bar[data-state="warn"] .fill::after, .install-bar[data-state="ok"] .fill::after, .install-bar[data-state="err"] .fill::after { display: none; }
+.install-bar[data-state="ok"] { border-color: #19c37d; }
+.install-bar[data-state="ok"] .fill { background: linear-gradient(90deg, #0f9d58, #19c37d); }
+.install-bar[data-state="err"] { border-color: #ff3b30; }
+.install-bar[data-state="err"] .fill { background: linear-gradient(90deg, #b00020, #ff3b30); }
+@keyframes install-stripes { to { background-position: 34px 0; } }
+@keyframes install-shimmer { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes install-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,180,0,.65); } 50% { box-shadow: 0 0 0 8px rgba(255,180,0,0); } }
+@media (prefers-reduced-motion: reduce) { .install-bar *, .install-bar { animation: none !important; transition: none !important; } }
+.install-bar[data-state="warn"] .label { left: 10px; right: auto; top: 7px; bottom: 7px; padding: 0 14px; border-radius: 8px; background: rgba(0,0,0,.85); text-shadow: none; }
+@media (max-width: 560px) { .install-bar { height: 56px; font-size: 13px; } .install-bar .label { right: 54px; } .install-bar[data-state="warn"] .label { right: 10px; } }
