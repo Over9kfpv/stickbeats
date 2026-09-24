@@ -54,6 +54,13 @@ VOICES = {
     "fr_ca-danielle": ("fr-CA", "French",            "Français (Québec)",   "🇨🇦", "Danielle",  "f", "ElevenLabs", "fr-FR", True,  "Québécois, gentle and engaging. Une voix d'ici."),
     "es_mx-enrique": ("es-MX", "Spanish",            "Español (México)",    "🇲🇽", "Enrique",   "m", "ElevenLabs", "es-ES", True,  "Mexican Spanish, credible and rich. Una voz mexicana para tu radio."),
     "en_gb-alice":   ("en-GB", "English",            "English (UK)",        "🇬🇧", "Alice",     "f", "ElevenLabs", "en-GB", True,  "Clear, engaging British female. Every number lands."),
+    # Funny: character voice packs. Numbers and flight modes stay plain English; only ~55 event
+    # phrases (armed, low battery, RTH...) get the character's lines, so the joke survives 50 flights.
+    "en_fun-pit-crew":      ("en-GB", "English", "English (UK)", "🇬🇧", "Pit Crew Chief",    "m", "ElevenLabs", "en-fun-pit-crew",      True, "Cyberpunk pit crew. Clipped, technical, a little too excited about voltage."),
+    "en_fun-fighter-pilot": ("en-GB", "English", "English (UK)", "🇬🇧", "Fighter Pilot",     "m", "ElevenLabs", "en-fun-fighter-pilot", True, "Overconfident 80s action hero. Every flight is a mission."),
+    "en_fun-butler":        ("en-GB", "English", "English (UK)", "🇬🇧", "The Butler",        "m", "ElevenLabs", "en-fun-butler",        True, "Extremely British. Disarming the model is announced the way one announces dinner."),
+    "en_fun-race-engineer": ("en-GB", "English", "English (UK)", "🇬🇧", "Race Engineer",     "m", "ElevenLabs", "en-fun-race-engineer", True, "Unhinged pit-wall radio. BOX BOX BOX! (for a battery warning.)"),
+    "en_fun-arcade":        ("en-GB", "English", "English (UK)", "🇬🇧", "Arcade Announcer",  "m", "ElevenLabs", "en-fun-arcade",        True, "Retro arcade cabinet. ROUND ONE... FLY! Low battery is WASTED."),
     "pt_pt-paulo":   ("pt-PT", "Portuguese",         "Português (Portugal)", "🇵🇹", "Paulo",    "m", "ElevenLabs", "pt-PT", True,  "European Portuguese, diplomatic and friendly. The official pack is Brazilian; this one is from Portugal."),
     "de-otto":       ("de-DE", "German",             "Deutsch",             "🇩🇪", "Otto",      "m", "ElevenLabs", "de-DE", True,  "Casual, natural German male. Endlich eine Männerstimme."),
     "fr-martin":     ("fr-FR", "French",             "Français",            "🇫🇷", "Martin",    "m", "ElevenLabs", "fr-FR", True,  "Deep, warm French male. Une voix grave pour la radio."),
@@ -291,7 +298,7 @@ def build_voices(site: Path):
         durs = {rel: None for rel in clips}   # filled after the pool below
         entry = dict(id=d, code=code, lang=code[:2], language=language, native=native, flag=flag, name=name,
                      gender=gender, engine=engine, hosted=hosted, note=note, files=len(wavs),
-                     clips=clips, durs=durs,
+                     clips=clips, durs=durs, funny=d.startswith("en_fun-"),
                      texts={rel: texts.get(rel, ("", ""))[0] for rel in clips},
                      previews=[f for f in PREVIEWS if f in clips])
         if hosted:

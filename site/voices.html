@@ -55,6 +55,8 @@
   </div>
 
   <div id="list">
+    <div class="subhead" id="h-funny"><h2>Funny · character voices</h2><p>Same full pack, different personality: numbers and flight modes stay plain, but arm, disarm, low battery and the other event alerts get the character's lines. Short jokes, so they don't wear thin after 50 flights.</p></div>
+    <div class="vgrid" id="funny"></div>
     <div class="subhead" id="h-hosted"><h2>Made by Stickbeats · Free &amp; CC0</h2><p>Generated with ElevenLabs, every clip machine-checked by transcribing it back. Hosted on this site.</p></div>
     <div class="vgrid" id="hosted"></div>
     <div class="subhead" id="h-official"><h2>Official EdgeTX packs</h2><p>Azure neural voices from the <a id="rel-link" href="https://github.com/EdgeTX/edgetx-sdcard-sounds/releases">EdgeTX release</a>. Free downloads. <a href="https://github.com/EdgeTX/edgetx-sdcard-sounds">Original sources and licenses</a>; these third-party packs are not covered by Stickbeats’ CC0 dedication.</p></div>
@@ -106,7 +108,8 @@ SB.voices().then((V) => {
       <div class="vfoot"><a class="open" href="v/${v.id}.html">${v.hosted ? `All ${v.files} phrases →` : "Details →"}</a>${dl}</div>
     </article>`;
   };
-  document.getElementById("hosted").innerHTML = V.hosted.map(card).join("");
+  document.getElementById("funny").innerHTML = V.voices.filter((v) => v.funny).map(card).join("");
+  document.getElementById("hosted").innerHTML = V.hosted.filter((v) => !v.funny).map(card).join("");
   document.addEventListener("click", async (e) => {
     const b = e.target.closest("button[data-dl]"); if (!b) return;
     const label = b.innerHTML; b.disabled = true;
@@ -129,11 +132,16 @@ SB.voices().then((V) => {
   langs.innerHTML = `<span class="lbl">Language</span><button class="chip" data-lang="" aria-pressed="true">All <span class="n">${V.voices.length}</span></button>` +
     V.languages.map((l) => `<button class="chip" data-lang="${l.lang}" aria-pressed="false"><span class="f">${l.flag}</span>${SB.esc(l.language)}<span class="n">${V.voices.filter((v) => v.lang === l.lang).length}</span></button>`).join("");
   const kinds = document.getElementById("kinds");
-  kinds.innerHTML = `<span class="lbl">Show</span>` + [["", "Everything"], ["hosted", "Made by Stickbeats"], ["m", "Male"], ["f", "Female"]].map(([k, l]) => `<button class="chip" data-kind="${k}" aria-pressed="${k === ""}">${l}</button>`).join("");
+  kinds.innerHTML = `<span class="lbl">Show</span>` + [["", "Everything"], ["funny", "Funny characters"], ["hosted", "Made by Stickbeats"], ["m", "Male"], ["f", "Female"]].map(([k, l]) => `<button class="chip" data-kind="${k}" aria-pressed="${k === ""}">${l}</button>`).join("");
   const apply = () => {
-    const wanted = (v) => (!state.lang || v.lang === state.lang) && (!state.kind || (state.kind === "hosted" ? v.hosted : v.gender === state.kind));
-    let nh = 0, no = 0;
-    document.querySelectorAll(".vcard").forEach((c) => { const v = V.byId[c.dataset.id]; const show = wanted(v); c.hidden = !show; if (show) v.hosted ? nh++ : no++; });
+    const wanted = (v) => (!state.lang || v.lang === state.lang) &&
+      (!state.kind || (state.kind === "hosted" ? v.hosted : state.kind === "funny" ? v.funny : v.gender === state.kind));
+    let nf = 0, nh = 0, no = 0;
+    document.querySelectorAll(".vcard").forEach((c) => {
+      const v = V.byId[c.dataset.id]; const show = wanted(v); c.hidden = !show;
+      if (show) v.funny ? nf++ : v.hosted ? nh++ : no++;
+    });
+    document.getElementById("h-funny").hidden = !nf;
     document.getElementById("h-hosted").hidden = !nh;
     document.getElementById("h-official").hidden = !no;
   };
